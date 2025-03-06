@@ -18,3 +18,4 @@ data/
 *.pptx
 *.geojson
 *.zip
+*.npy
