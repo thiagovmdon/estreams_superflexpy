@@ -522,7 +522,7 @@ parameters = list(best_params_dict.values())
 parameter_names_model = model.get_parameters_name()
 best_params_dict_model = assign_parameter_values(parameter_names_model, parameter_names, parameters)
 
-save_path = "/home/EAWAG/nascimth/models/best_params_dict_model.csv"
+save_path = "/home/EAWAG/nascimth/models/best_params_dict_modelGlobal.csv"
 
 # Convert dictionary to DataFrame and save
 pd.DataFrame.from_dict(best_params_dict_model, orient='index').to_csv(save_path)
