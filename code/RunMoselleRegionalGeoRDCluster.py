@@ -102,7 +102,6 @@ quality_masks = np.load(path_inputs+'//quality_masks.npy', allow_pickle=True).it
 rootdepth_mean = np.load(path_inputs+'//rootdepth_mean.npy', allow_pickle=True).item()
 waterdeficit_mean = np.load(path_inputs+'//waterdeficit_mean.npy', allow_pickle=True).item()
 
-
 catchments_ids = ['FR000184',
  'DERP2017',
  'DERP2011',
@@ -262,57 +261,249 @@ lower_transparent2 = Transparent(
     id='lower-transparent2'
 )
 
-general = Unit(
-    layers=[
-        [upper_splitter],
-        [snow, upper_transparent],
-        [upper_junction],
-        [unsaturated],
-        [lower_splitter],
-        [slow, lag_fun],
-        [lower_transparent, fast],
-        [lower_junction],
-    ],
-    id='general'
-)
+import numba as nb
+from superflexpy.framework.element import ODEsElement
+from copy import deepcopy
 
-low = Unit(
-    layers=[
-        [upper_splitter],
-        [snow, upper_transparent],
-        [upper_junction],
-        [unsaturated],
-        [fast],
-    ],
-    id='low'
-)
 
-high = Unit(
-    layers=[
-        [upper_splitter],
-        [snow, upper_transparent],
-        [upper_junction],
-        [unsaturated],
-        [slowhigh],
-    ],
-    id='high'
-)
+class CustomUnsaturatedReservoir(UnsaturatedReservoir):
+    """
+    This class implements the UnsaturatedReservoir of HBV.
+    """
+
+    def __init__(self, parameters, states, approximation, id):
+        
+        """
+        This is the initializer of the class UnsaturatedReservoir.
+
+        Parameters
+        ----------
+        parameters : dict
+            Parameters of the element. The keys must be:
+            'Smax' : maximum reservoir storage
+            'Ce' : Potential evapotranspiration multiplier
+            'm' : Smoothing factor for evapotranspiration
+            'beta' : Exponent in the relation for the streamflow
+        states : dict
+            Initial state of the element. The keys must be:
+            - 'S0' : initial storage of the reservoir.
+        approximation : superflexpy.utils.numerical_approximation.NumericalApproximator
+            Numerial method used to approximate the differential equation
+        id : str
+            Itentifier of the element. All the elements of the framework must
+            have an id.
+        """
+
+        ODEsElement.__init__(self, parameters=parameters, states=states, approximation=approximation, id=id)
+
+        self._fluxes_python = [self._fluxes_function_python]
+
+        if approximation.architecture == "numba":
+            self._fluxes = [self._fluxes_function_numba]
+        elif approximation.architecture == "python":
+            self._fluxes = [self._fluxes_function_python]
+
+
+    # METHODS FOR THE USER
+
+    def set_input(self, input):
+        """
+        Set the input of the element.
+
+        Parameters
+        ----------
+        input : list(numpy.ndarray)
+            List containing the input fluxes of the element. It contains 2
+            fluxes:
+            1. Rainfall
+            2. PET
+        """
+
+        self.input = {"P": input[0], "PET": input[1]}
+
+    def get_output(self, solve=True):
+        """
+        This method solves the differential equation governing the routing
+        store.
+
+        Returns
+        -------
+        list(numpy.ndarray)
+            Output fluxes in the following order:
+            1. Streamflow (Q)
+        """
+
+        if solve:
+            self._solver_states = [self._states[self._prefix_states + "S0"]]
+
+            self._solve_differential_equation()
+
+            # Update the state
+            self.set_states({self._prefix_states + "S0": self.state_array[-1, 0]})
+
+        fluxes = self._num_app.get_fluxes(
+            fluxes=self._fluxes_python,
+            S=self.state_array,
+            S0=self._solver_states,
+            dt=self._dt,
+            **self.input,
+            **{k[len(self._prefix_parameters) :]: self._parameters[k] for k in self._parameters},
+        )
+
+        return [-fluxes[0][2]]
+
+    def get_AET(self):
+        """
+        This method calculates the actual evapotranspiration
+
+        Returns
+        -------
+        numpy.ndarray
+            Array of actual evapotranspiration
+        """
+
+        try:
+            S = self.state_array
+        except AttributeError:
+            message = "{}get_aet method has to be run after running ".format(self._error_message)
+            message += "the model using the method get_output"
+            raise AttributeError(message)
+
+        fluxes = self._num_app.get_fluxes(
+            fluxes=self._fluxes_python,
+            S=S,
+            S0=self._solver_states,
+            dt=self._dt,
+            **self.input,
+            **{k[len(self._prefix_parameters) :]: self._parameters[k] for k in self._parameters},
+        )
+
+        return [-fluxes[0][1]]
+
+    # PROTECTED METHODS
+
+    @staticmethod
+    def _fluxes_function_python(S, S0, ind, P, Csmax, Ce, m, bacon, beta, PET, dt):
+        # TODO: handle time variable parameters (Smax) -> overflow
+        Smax = Csmax * bacon
+
+        if ind is None:
+            return (
+                [
+                    P,
+                    -Ce * PET * ((S / Smax) * (1 + m)) / ((S / Smax) + m),
+                    -P * (S / Smax) ** beta,
+                ],
+                0.0,
+                S0 + P * dt,
+            )
+        else:
+            Smax[ind] = Csmax[ind] * bacon[ind]
+
+            return (
+                [
+                    P[ind],
+                    -Ce[ind] * PET[ind] * ((S / Smax[ind]) * (1 + m[ind])) / ((S / Smax[ind]) + m[ind]),
+                    -P[ind] * (S / Smax[ind]) ** beta[ind],
+                ],
+                0.0,
+                S0 + P[ind] * dt[ind],
+                [
+                    0.0,
+                    -(Ce[ind] * PET[ind] * m[ind] * (m[ind] + 1) * Smax[ind]) / ((S + m[ind] * Smax[ind]) ** 2),
+                    -(P[ind] * beta[ind] / Smax[ind]) * (S / Smax[ind]) ** (beta[ind] - 1),
+                ],
+            )
+
+    @staticmethod
+    @nb.jit(
+        "Tuple((UniTuple(f8, 3), f8, f8,UniTuple(f8, 3)))"
+        "(optional(f8), f8, i4, f8[:], f8[:], f8[:], f8[:], f8[:], f8[:], f8[:], f8[:])",
+        nopython=True,
+    )
+    def _fluxes_function_numba(S, S0, ind, P, Csmax, Ce, m, bacon, beta, PET, dt):
+        # TODO: handle time variable parameters (Smax) -> overflow
+        Smax = Csmax * bacon
+        
+        return (
+            (
+                P[ind],
+                -Ce[ind] * PET[ind] * ((S / Smax[ind]) * (1 + m[ind])) / ((S / Smax[ind]) + m[ind]),
+                -P[ind] * (S / Smax[ind]) ** beta[ind],
+            ),
+            0.0,
+            S0 + P[ind] * dt[ind],
+            (
+                0.0,
+                -(Ce[ind] * PET[ind] * m[ind] * (m[ind] + 1) * Smax[ind]) / ((S + m[ind] * Smax[ind]) ** 2),
+                -(P[ind] * beta[ind] / Smax[ind]) * (S / Smax[ind]) ** (beta[ind] - 1),
+            ),
+        )
 
 
 # Generate Nodes dynamically and assign them as global variables
 catchments = [] # Dictionary to store nodes
 
 for cat_id in catchments_ids:
+
+
+    unsaturated = CustomUnsaturatedReservoir(
+        parameters={'Csmax': 1.5, 'Ce': 1.0, 'm': 0.01, 'beta': 2.0, 'bacon': rootdepth_mean[cat_id]},
+        states={'S0': 10.0},
+        approximation=num_app,
+        id='unsaturated')
+
+
+    general = Unit(
+        layers=[
+            [upper_splitter],
+            [snow, upper_transparent],
+            [upper_junction],
+            [unsaturated],
+            [lower_splitter],
+            [slow, lag_fun],
+            [lower_transparent, fast],
+            [lower_junction],
+        ],
+        id='general'
+    )
+
+    low = Unit(
+        layers=[
+            [upper_splitter],
+            [snow, upper_transparent],
+            [upper_junction],
+            [unsaturated],
+            [fast],
+        ],
+        id='low'
+    )
+
+    high = Unit(
+        layers=[
+            [upper_splitter],
+            [snow, upper_transparent],
+            [upper_junction],
+            [unsaturated],
+            [slowhigh],
+        ],
+        id='high'
+    )
+
     node = Node(
         units=[high, general, low],  # Use unit from dictionary or default
-        weights=perm_areasglobal[cat_id],
+        weights=perm_areas[cat_id],
         area=areas.get(cat_id),  # Use predefined area or default
         id=cat_id
     )
+    
+    node.set_input(inputs[cat_id])  # Correct way to set inputs
+    
     catchments.append(node)  # Store in the list
 
     # Assign the node as a global variable
-    globals()[cat_id] = node
+    #globals()[cat_id] = node
+
 
 # Ensure topology only includes nodes that exist in `catchments_ids`
 topology = {
@@ -325,12 +516,6 @@ model = Network(
     nodes=catchments,  # Pass list of Node objects
     topology=topology  
 )
-
-
-# Set inputs for each node using the manually defined dictionary
-for cat in catchments:
-    cat.set_input(inputs[cat.id])  # Correct way to set inputs
-
 
 def assign_parameter_values(parameters_name_model, parameter_names, parameters):
     """
@@ -413,20 +598,11 @@ class spotpy_model(object):
             named_parameters = assign_parameter_values(self._parameter_names_model, self._parameter_names, parameters)
             self._model.set_parameters(named_parameters)  # Apply shared parameters
 
-        # Ensure `named_parameters` is always defined
-        #named_parameters = None  
-
-        ## Check if parameters have changed (avoid unnecessary computations)
-        #if not hasattr(self, "_cached_params") or not np.array_equal(self._cached_params, parameters):
-        #    self._cached_params = np.array(parameters)  # Store the current parameters
-        #    named_parameters = assign_parameter_values(self._parameter_names_model, self._parameter_names, parameters)
-        #    self._cached_named_parameters = named_parameters  # Cache the named parameters
-        #    self._model.set_parameters(named_parameters)  # Apply shared parameters
-        #else:
-        #    named_parameters = self._cached_named_parameters  # Retrieve from cache
-
-        # Apply shared parameters to the whole network
-        self._model.set_parameters(named_parameters)
+        # Apply shared parameters to the whole network (this is due to the way we set Csumax)
+        for key in model._content_pointer.keys():
+            i = model._content_pointer[key] 
+            self._model._content[i].set_parameters(named_parameters)
+        #self._model.set_parameters(named_parameters)
 
         # Set timestep and reset the network
         self._model.set_timestep(self._dt)
@@ -477,20 +653,21 @@ spotpy_hyd_mod = spotpy_model(
         spotpy.parameter.Uniform("general_slow_k", 1e-7, 0.1),
 
         spotpy.parameter.Uniform("unsaturated_Ce", 0.1, 3.0),
-        spotpy.parameter.Uniform("snow_k", 0.01, 10.0),
-        spotpy.parameter.Uniform("unsaturated_Smax", 100.0, 600.0),
+        spotpy.parameter.Uniform("unsaturated_Csmax", 0.5, 5.0),  # Global calibration parameter
         spotpy.parameter.Uniform("splitpar", 0.5, 0.9),
+
+        spotpy.parameter.Uniform("snow_k", 0.01, 10.0),
         spotpy.parameter.Uniform("unsaturated_beta", 0.01, 10.0),
-        spotpy.parameter.Uniform("lag-fun_lag-time", 1.0, 10.0),
+        spotpy.parameter.Uniform("general_lag-fun_lag-time", 1.0, 10.0),
     ],
     parameter_names=[
         "general_fast_k", "low_fast_k", 
-        "high_slowhigh_k", "general_slow_k", "unsaturated_Ce", "snow_k", "unsaturated_Smax", "splitpar",
-        "unsaturated_beta", "lag-fun_lag-time",
+        "high_slowhigh_k", "general_slow_k", "unsaturated_Ce", "unsaturated_Csmax", "splitpar", "snow_k", 
+        "unsaturated_beta", "general_lag-fun_lag-time",
     ],
     parameter_names_model = model.get_parameters_name(),
     output_index=0,  # Assumes all nodes have the same output variable
-    warm_up=365  # Warm-up period
+    warm_up=365,  # Warm-up period
 )
 
 sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
@@ -522,7 +699,7 @@ parameters = list(best_params_dict.values())
 parameter_names_model = model.get_parameters_name()
 best_params_dict_model = assign_parameter_values(parameter_names_model, parameter_names, parameters)
 
-save_path = "/home/EAWAG/nascimth/models/best_params_dict_model.csv"
+save_path = "/home/EAWAG/nascimth/models/best_params_dict_model_RegionalRD.csv"
 
 # Convert dictionary to DataFrame and save
 pd.DataFrame.from_dict(best_params_dict_model, orient='index').to_csv(save_path)

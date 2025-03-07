@@ -98,10 +98,25 @@ observations = np.load(path_inputs+'//observations.npy', allow_pickle=True).item
 areas = np.load(path_inputs+'//areas.npy', allow_pickle=True).item()
 perm_areas = np.load(path_inputs+'//perm_areas.npy', allow_pickle=True).item()
 perm_areasglobal = np.load(path_inputs+'//perm_areasglobal.npy', allow_pickle=True).item()
+perm_areascontinental = np.load(path_inputs+'//perm_areascontinental.npy', allow_pickle=True).item()
 quality_masks = np.load(path_inputs+'//quality_masks.npy', allow_pickle=True).item()
 rootdepth_mean = np.load(path_inputs+'//rootdepth_mean.npy', allow_pickle=True).item()
 waterdeficit_mean = np.load(path_inputs+'//waterdeficit_mean.npy', allow_pickle=True).item()
 
+
+#catchments_ids = ['DERP2017',
+# 'DERP2033',
+# 'DERP2007',
+# 'DERP2024',
+# 'FR003253',
+# 'FR003308',
+# 'FR003283',
+# 'FR003301',
+# 'DERP2003',
+# 'FR003265',
+# 'FR003272',
+# 'DEBU1958',
+# ]
 
 catchments_ids = ['FR000184',
  'DERP2017',
@@ -305,7 +320,7 @@ catchments = [] # Dictionary to store nodes
 for cat_id in catchments_ids:
     node = Node(
         units=[high, general, low],  # Use unit from dictionary or default
-        weights=perm_areasglobal[cat_id],
+        weights=perm_areascontinental[cat_id],
         area=areas.get(cat_id),  # Use predefined area or default
         id=cat_id
     )
@@ -510,7 +525,6 @@ spotpy.analyser.get_parameters(results)[bestindex]
 
 best_params_dict = dict(zip(spotpy.analyser.get_parameternames(results), spotpy.analyser.get_parameters(results)[bestindex]))
 
-
 if 'splitpar' in best_params_dict:
     best_params_dict['general_lowersplitter_splitpar'] = best_params_dict.pop('splitpar')
 
@@ -522,7 +536,7 @@ parameters = list(best_params_dict.values())
 parameter_names_model = model.get_parameters_name()
 best_params_dict_model = assign_parameter_values(parameter_names_model, parameter_names, parameters)
 
-save_path = "/home/EAWAG/nascimth/models/best_params_dict_model.csv"
+save_path = "/home/EAWAG/nascimth/models/best_params_dict_model_continental.csv"
 
 # Convert dictionary to DataFrame and save
 pd.DataFrame.from_dict(best_params_dict_model, orient='index').to_csv(save_path)
