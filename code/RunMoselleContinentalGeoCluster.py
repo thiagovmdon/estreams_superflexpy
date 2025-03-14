@@ -92,6 +92,7 @@ def find_iterative_immediate_downstream(df, catchments):
     return immediate_downstream
 
 path_inputs = '/home/EAWAG/nascimth/models/input/subset_2001_2015'
+#path_inputs = '/home/EAWAG/nascimth/models/input/subset_1988_2001'
 
 inputs = np.load(path_inputs+'//inputs.npy', allow_pickle=True).item()
 observations = np.load(path_inputs+'//observations.npy', allow_pickle=True).item()
