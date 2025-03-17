@@ -20,6 +20,7 @@ from superflexpy.framework.element import ParameterizedElement
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
+print("version-17.03.2025")
 
 # Define the functions
 def obj_fun_nsee(observations, simulation, expo=0.5):
@@ -101,6 +102,7 @@ perm_areasglobal = np.load(path_inputs+'//perm_areasglobal.npy', allow_pickle=Tr
 quality_masks = np.load(path_inputs+'//quality_masks.npy', allow_pickle=True).item()
 rootdepth_mean = np.load(path_inputs+'//rootdepth_mean.npy', allow_pickle=True).item()
 waterdeficit_mean = np.load(path_inputs+'//waterdeficit_mean.npy', allow_pickle=True).item()
+prec_mean= np.load(path_inputs+'//prec_mean.npy', allow_pickle=True).item()
 
 catchments_ids = ['FR000184',
  'DERP2017',
@@ -266,7 +268,14 @@ from superflexpy.framework.element import ODEsElement
 from copy import deepcopy
 
 
-class CustomUnsaturatedReservoir(UnsaturatedReservoir):
+import numba as nb
+from superflexpy.framework.element import ODEsElement
+from copy import deepcopy
+import numba as nb
+from superflexpy.framework.element import ODEsElement
+from copy import deepcopy
+
+class CustomUnsaturatedReservoirS0(UnsaturatedReservoir):
     """
     This class implements the UnsaturatedReservoir of HBV.
     """
@@ -386,6 +395,7 @@ class CustomUnsaturatedReservoir(UnsaturatedReservoir):
     def _fluxes_function_python(S, S0, ind, P, Csmax, Ce, m, bacon, beta, PET, dt):
         # TODO: handle time variable parameters (Smax) -> overflow
         Smax = Csmax * bacon
+        S0 = 0.2 * Smax
 
         if ind is None:
             return (
@@ -424,7 +434,6 @@ class CustomUnsaturatedReservoir(UnsaturatedReservoir):
     def _fluxes_function_numba(S, S0, ind, P, Csmax, Ce, m, bacon, beta, PET, dt):
         # TODO: handle time variable parameters (Smax) -> overflow
         Smax = Csmax * bacon
-        
         return (
             (
                 P[ind],
@@ -447,7 +456,7 @@ catchments = [] # Dictionary to store nodes
 for cat_id in catchments_ids:
 
 
-    unsaturated = CustomUnsaturatedReservoir(
+    unsaturated = CustomUnsaturatedReservoirS0(
         parameters={'Csmax': 1.5, 'Ce': 1.0, 'm': 0.01, 'beta': 2.0, 'bacon': waterdeficit_mean[cat_id]},
         states={'S0': 10.0},
         approximation=num_app,
@@ -552,7 +561,7 @@ def assign_parameter_values(parameters_name_model, parameter_names, parameters):
 
 class spotpy_model(object):
 
-    def __init__(self, model, catchments, dt, observations, parameters, parameter_names, parameter_names_model, output_index, warm_up=365):
+    def __init__(self, model, catchments, dt, observations, parameters, parameter_names, parameter_names_model, output_index, warm_up, prec_mean):
 
         """
         Spotpy model for multi-node calibration in SuperflexPy.
@@ -608,6 +617,38 @@ class spotpy_model(object):
         self._model.set_timestep(self._dt)
         self._model.reset_states()
 
+        # Apply the initial states to the whole network
+        for key in model._content_pointer.keys():
+            i = model._content_pointer[key]
+            try:
+                S0_high_slowhigh = round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["high_slowhigh_k"]), 2)
+                S0_general_fast= round(np.sqrt((prec_mean[key] * 0.3 * (1 - named_parameters["general_lowersplitter_splitpar"]))/named_parameters["general_fast_k"]), 2)
+                S0_general_slow= round((prec_mean[key] * 0.3 * named_parameters["general_lowersplitter_splitpar"])/named_parameters["general_slow_k"], 2)
+                S0_low_fast= round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["low_fast_k"]), 2)
+                
+                states_dictionary = {
+                                    f"{key}_high_slowhigh_S0": S0_high_slowhigh,
+                                    f"{key}_general_fast_S0": S0_general_fast,
+                                    f"{key}_general_slow_S0": S0_general_slow,
+                                    f"{key}_low_fast_S0": S0_low_fast}   
+                
+            
+            except: 
+                S0_high_slowhigh = round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["high_slowhigh_k"]), 2)
+                S0_general_fast= round(np.sqrt((prec_mean[key] * 0.3 * (1 - named_parameters["general_lowersplitter_splitpar"]))/named_parameters["general_fast_k"]), 2)
+                S0_general_slow= round((prec_mean[key] * 0.3 * named_parameters["general_lowersplitter_splitpar"])/named_parameters["general_slow_k"], 2)
+                S0_low_fast= round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["low_fast_k"]), 2)
+                
+                states_dictionary = {
+                                    f"{key}_high_slowhigh_S0": S0_high_slowhigh,
+                                    f"{key}_general_fast_S0": S0_general_fast,
+                                    f"{key}_general_slow_S0": S0_general_slow,
+                                    f"{key}_low_fast_S0": S0_low_fast}  
+                
+            
+            self._model._content[i].set_states(states_dictionary)
+
+
         # Run the full network
         output = self._model.get_output()  # Get outputs for all nodes
 
@@ -638,8 +679,6 @@ class spotpy_model(object):
         # Compute the average objective function across all nodes
         return np.mean(obj_values)  # Minimize the average error
 
-model.reset_states()
-
 spotpy_hyd_mod = spotpy_model(
     model=model,  # The entire SuperflexPy network
     catchments=catchments,  # Use predefined catchments list
@@ -654,7 +693,7 @@ spotpy_hyd_mod = spotpy_model(
 
         spotpy.parameter.Uniform("unsaturated_Ce", 0.1, 3.0),
         spotpy.parameter.Uniform("unsaturated_Csmax", 0.5, 5.0),  # Global calibration parameter
-        spotpy.parameter.Uniform("splitpar", 0.5, 0.9),
+        spotpy.parameter.Uniform("general_lowersplitter_splitpar", 0.5, 0.9),
 
         spotpy.parameter.Uniform("snow_k", 0.01, 10.0),
         spotpy.parameter.Uniform("unsaturated_beta", 0.01, 10.0),
@@ -662,12 +701,14 @@ spotpy_hyd_mod = spotpy_model(
     ],
     parameter_names=[
         "general_fast_k", "low_fast_k", 
-        "high_slowhigh_k", "general_slow_k", "unsaturated_Ce", "unsaturated_Csmax", "splitpar", "snow_k", 
+        "high_slowhigh_k", "general_slow_k", "unsaturated_Ce", "unsaturated_Csmax", "general_lowersplitter_splitpar", "snow_k", 
         "unsaturated_beta", "general_lag-fun_lag-time",
     ],
     parameter_names_model = model.get_parameters_name(),
     output_index=0,  # Assumes all nodes have the same output variable
     warm_up=365,  # Warm-up period
+    prec_mean=prec_mean
+
 )
 
 sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')

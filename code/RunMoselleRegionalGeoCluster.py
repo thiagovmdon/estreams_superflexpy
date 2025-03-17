@@ -20,6 +20,7 @@ from superflexpy.framework.element import ParameterizedElement
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
+print("version-17.03.2025")
 
 # Define the functions
 def obj_fun_nsee(observations, simulation, expo=0.5):
@@ -101,7 +102,7 @@ perm_areasglobal = np.load(path_inputs+'//perm_areasglobal.npy', allow_pickle=Tr
 quality_masks = np.load(path_inputs+'//quality_masks.npy', allow_pickle=True).item()
 rootdepth_mean = np.load(path_inputs+'//rootdepth_mean.npy', allow_pickle=True).item()
 waterdeficit_mean = np.load(path_inputs+'//waterdeficit_mean.npy', allow_pickle=True).item()
-
+prec_mean= np.load(path_inputs+'//prec_mean.npy', allow_pickle=True).item()
 
 #catchments_ids = ['DERP2017',
 # 'DERP2033',
@@ -381,7 +382,7 @@ def assign_parameter_values(parameters_name_model, parameter_names, parameters):
 
 class spotpy_model(object):
 
-    def __init__(self, model, catchments, dt, observations, parameters, parameter_names, parameter_names_model, output_index, warm_up=365):
+    def __init__(self, model, catchments, dt, observations, parameters, parameter_names, parameter_names_model, output_index, warm_up, prec_mean):
 
         """
         Spotpy model for multi-node calibration in SuperflexPy.
@@ -427,24 +428,47 @@ class spotpy_model(object):
             named_parameters = assign_parameter_values(self._parameter_names_model, self._parameter_names, parameters)
             self._model.set_parameters(named_parameters)  # Apply shared parameters
 
-        # Ensure `named_parameters` is always defined
-        #named_parameters = None  
-
-        ## Check if parameters have changed (avoid unnecessary computations)
-        #if not hasattr(self, "_cached_params") or not np.array_equal(self._cached_params, parameters):
-        #    self._cached_params = np.array(parameters)  # Store the current parameters
-        #    named_parameters = assign_parameter_values(self._parameter_names_model, self._parameter_names, parameters)
-        #    self._cached_named_parameters = named_parameters  # Cache the named parameters
-        #    self._model.set_parameters(named_parameters)  # Apply shared parameters
-        #else:
-        #    named_parameters = self._cached_named_parameters  # Retrieve from cache
-
-        # Apply shared parameters to the whole network
-        self._model.set_parameters(named_parameters)
+        # Apply shared parameters to the whole network (this is due to the way we set Csumax)
+        for key in model._content_pointer.keys():
+            i = model._content_pointer[key] 
+            self._model._content[i].set_parameters(named_parameters)
+        #self._model.set_parameters(named_parameters)
 
         # Set timestep and reset the network
         self._model.set_timestep(self._dt)
         self._model.reset_states()
+
+        # Apply the initial states to the whole network
+        for key in model._content_pointer.keys():
+            i = model._content_pointer[key]
+            try:
+                S0_high_slowhigh = round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["high_slowhigh_k"]), 2)
+                S0_general_fast= round(np.sqrt((prec_mean[key] * 0.3 * (1 - named_parameters["general_lowersplitter_splitpar"]))/named_parameters["general_fast_k"]), 2)
+                S0_general_slow= round((prec_mean[key] * 0.3 * named_parameters["general_lowersplitter_splitpar"])/named_parameters["general_slow_k"], 2)
+                S0_low_fast= round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["low_fast_k"]), 2)
+                
+                states_dictionary = {
+                                    f"{key}_high_slowhigh_S0": S0_high_slowhigh,
+                                    f"{key}_general_fast_S0": S0_general_fast,
+                                    f"{key}_general_slow_S0": S0_general_slow,
+                                    f"{key}_low_fast_S0": S0_low_fast}   
+                
+            
+            except: 
+                S0_high_slowhigh = round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["high_slowhigh_k"]), 2)
+                S0_general_fast= round(np.sqrt((prec_mean[key] * 0.3 * (1 - named_parameters["general_lowersplitter_splitpar"]))/named_parameters["general_fast_k"]), 2)
+                S0_general_slow= round((prec_mean[key] * 0.3 * named_parameters["general_lowersplitter_splitpar"])/named_parameters["general_slow_k"], 2)
+                S0_low_fast= round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["low_fast_k"]), 2)
+                
+                states_dictionary = {
+                                    f"{key}_high_slowhigh_S0": S0_high_slowhigh,
+                                    f"{key}_general_fast_S0": S0_general_fast,
+                                    f"{key}_general_slow_S0": S0_general_slow,
+                                    f"{key}_low_fast_S0": S0_low_fast}  
+                
+            
+            self._model._content[i].set_states(states_dictionary)
+
 
         # Run the full network
         output = self._model.get_output()  # Get outputs for all nodes
@@ -476,8 +500,6 @@ class spotpy_model(object):
         # Compute the average objective function across all nodes
         return np.mean(obj_values)  # Minimize the average error
 
-model.reset_states()
-
 spotpy_hyd_mod = spotpy_model(
     model=model,  # The entire SuperflexPy network
     catchments=catchments,  # Use predefined catchments list
@@ -493,18 +515,20 @@ spotpy_hyd_mod = spotpy_model(
         spotpy.parameter.Uniform("unsaturated_Ce", 0.1, 3.0),
         spotpy.parameter.Uniform("snow_k", 0.01, 10.0),
         spotpy.parameter.Uniform("unsaturated_Smax", 100.0, 600.0),
-        spotpy.parameter.Uniform("splitpar", 0.5, 0.9),
+        spotpy.parameter.Uniform("general_lowersplitter_splitpar", 0.5, 0.9),
         spotpy.parameter.Uniform("unsaturated_beta", 0.01, 10.0),
         spotpy.parameter.Uniform("lag-fun_lag-time", 1.0, 10.0),
     ],
     parameter_names=[
         "general_fast_k", "low_fast_k", 
-        "high_slowhigh_k", "general_slow_k", "unsaturated_Ce", "snow_k", "unsaturated_Smax", "splitpar",
+        "high_slowhigh_k", "general_slow_k", "unsaturated_Ce", "snow_k", "unsaturated_Smax", "general_lowersplitter_splitpar",
         "unsaturated_beta", "lag-fun_lag-time",
     ],
     parameter_names_model = model.get_parameters_name(),
     output_index=0,  # Assumes all nodes have the same output variable
-    warm_up=365  # Warm-up period
+    warm_up=365,  # Warm-up period
+    prec_mean=prec_mean
+
 )
 
 sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
