@@ -20,7 +20,7 @@ from superflexpy.framework.element import ParameterizedElement
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
-print("version-17.03.2025")
+print("version-18.03.2025")
 
 # Define the functions
 def obj_fun_nsee(observations, simulation, expo=0.5):
@@ -275,7 +275,7 @@ import numba as nb
 from superflexpy.framework.element import ODEsElement
 from copy import deepcopy
 
-class CustomUnsaturatedReservoirS0(UnsaturatedReservoir):
+class CustomUnsaturatedReservoir(UnsaturatedReservoir):
     """
     This class implements the UnsaturatedReservoir of HBV.
     """
@@ -395,7 +395,6 @@ class CustomUnsaturatedReservoirS0(UnsaturatedReservoir):
     def _fluxes_function_python(S, S0, ind, P, Csmax, Ce, m, bacon, beta, PET, dt):
         # TODO: handle time variable parameters (Smax) -> overflow
         Smax = Csmax * bacon
-        S0 = 0.2 * Smax
 
         if ind is None:
             return (
@@ -434,6 +433,7 @@ class CustomUnsaturatedReservoirS0(UnsaturatedReservoir):
     def _fluxes_function_numba(S, S0, ind, P, Csmax, Ce, m, bacon, beta, PET, dt):
         # TODO: handle time variable parameters (Smax) -> overflow
         Smax = Csmax * bacon
+        
         return (
             (
                 P[ind],
@@ -449,14 +449,12 @@ class CustomUnsaturatedReservoirS0(UnsaturatedReservoir):
             ),
         )
 
-
 # Generate Nodes dynamically and assign them as global variables
 catchments = [] # Dictionary to store nodes
 
 for cat_id in catchments_ids:
 
-
-    unsaturated = CustomUnsaturatedReservoirS0(
+    unsaturated = CustomUnsaturatedReservoir(
         parameters={'Csmax': 1.5, 'Ce': 1.0, 'm': 0.01, 'beta': 2.0, 'bacon': rootdepth_mean[cat_id]},
         states={'S0': 10.0},
         approximation=num_app,
@@ -616,38 +614,6 @@ class spotpy_model(object):
         # Set timestep and reset the network
         self._model.set_timestep(self._dt)
         self._model.reset_states()
-
-        # Apply the initial states to the whole network
-        for key in model._content_pointer.keys():
-            i = model._content_pointer[key]
-            try:
-                S0_high_slowhigh = round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["high_slowhigh_k"]), 2)
-                S0_general_fast= round(np.sqrt((prec_mean[key] * 0.3 * (1 - named_parameters["general_lowersplitter_splitpar"]))/named_parameters["general_fast_k"]), 2)
-                S0_general_slow= round((prec_mean[key] * 0.3 * named_parameters["general_lowersplitter_splitpar"])/named_parameters["general_slow_k"], 2)
-                S0_low_fast= round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["low_fast_k"]), 2)
-                
-                states_dictionary = {
-                                    f"{key}_high_slowhigh_S0": S0_high_slowhigh,
-                                    f"{key}_general_fast_S0": S0_general_fast,
-                                    f"{key}_general_slow_S0": S0_general_slow,
-                                    f"{key}_low_fast_S0": S0_low_fast}   
-                
-            
-            except: 
-                S0_high_slowhigh = round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["high_slowhigh_k"]), 2)
-                S0_general_fast= round(np.sqrt((prec_mean[key] * 0.3 * (1 - named_parameters["general_lowersplitter_splitpar"]))/named_parameters["general_fast_k"]), 2)
-                S0_general_slow= round((prec_mean[key] * 0.3 * named_parameters["general_lowersplitter_splitpar"])/named_parameters["general_slow_k"], 2)
-                S0_low_fast= round(np.sqrt((prec_mean[key] * 0.3)/named_parameters["low_fast_k"]), 2)
-                
-                states_dictionary = {
-                                    f"{key}_high_slowhigh_S0": S0_high_slowhigh,
-                                    f"{key}_general_fast_S0": S0_general_fast,
-                                    f"{key}_general_slow_S0": S0_general_slow,
-                                    f"{key}_low_fast_S0": S0_low_fast}  
-                
-            
-            self._model._content[i].set_states(states_dictionary)
-
 
         # Run the full network
         output = self._model.get_output()  # Get outputs for all nodes
