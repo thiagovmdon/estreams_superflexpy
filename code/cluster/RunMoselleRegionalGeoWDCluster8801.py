@@ -675,7 +675,7 @@ sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
 #sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname='calibration', dbformat="csv", parallel="seq")
 #sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat=None, parallel="seq")
 
-sampler.sample(repetitions=50000)
+sampler.sample(repetitions=75000)
 
 results = sampler.getdata()                                                  # Load the results
 spotpy.analyser.plot_parametertrace(results)                                 # Show the results
