@@ -16,3 +16,4 @@ __pycache__/
 *.zip
 *.npy
 !data/metadata/*
+*.log
