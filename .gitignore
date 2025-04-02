@@ -19,3 +19,4 @@ data/
 *.geojson
 *.zip
 *.npy
+!data/metadata/*
