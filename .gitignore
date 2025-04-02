@@ -10,10 +10,6 @@ __pycache__/
 *.shx
 *.tif
 *.nc
-*.csv
-.xlsx
-bin/
-data/
 *.joblib
 *.pptx
 *.geojson
