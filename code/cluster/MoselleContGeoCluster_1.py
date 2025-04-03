@@ -512,7 +512,7 @@ for group in group_names:
     )
 
     sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
-    sampler.sample(repetitions=50000)
+    sampler.sample(repetitions=30000)
 
     results = sampler.getdata()                                                  # Load the results
     spotpy.analyser.plot_parametertrace(results)                                 # Show the results
