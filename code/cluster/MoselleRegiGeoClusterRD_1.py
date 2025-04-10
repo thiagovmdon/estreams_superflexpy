@@ -446,7 +446,7 @@ catchments = [] # Dictionary to store nodes
 for cat_id in catchments_ids:
 
     unsaturated = CustomUnsaturatedReservoir(
-        parameters={'Csmax': 1.5, 'Ce': 0.9509033786507949, 'm': 0.01, 'beta': 0.839150540885298, 'bacon': waterdeficit_mean[cat_id]},
+        parameters={'Csmax': 1.5, 'Ce': 0.9509033786507949, 'm': 0.01, 'beta': 0.839150540885298, 'bacon': rootdepth_mean[cat_id]},
         states={'S0': 10.0},
         approximation=num_app,
         id='unsaturated')
@@ -699,7 +699,7 @@ parameters = list(best_params_dict.values())
 parameter_names_model = model.get_parameters_name()
 best_params_dict_model = assign_parameter_values(parameter_names_model, parameter_names, parameters)
 
-save_path = f"results/groups/best_params_regi_Group_1WD.csv"
+save_path = f"results/groups/best_params_regi_Group_1RD.csv"
 
 # Convert dictionary to DataFrame and save
 pd.DataFrame.from_dict(best_params_dict_model, orient='index').to_csv(save_path)

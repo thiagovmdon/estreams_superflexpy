@@ -91,7 +91,7 @@ def find_iterative_immediate_downstream(df, catchments):
 
     return immediate_downstream
 
-path_inputs = 'data/models/input/subset_2001_2015'
+path_inputs = 'data/models/input/subset_1988_2001'
 
 inputs = np.load(path_inputs+'//inputs.npy', allow_pickle=True).item()
 observations = np.load(path_inputs+'//observations.npy', allow_pickle=True).item()
@@ -165,7 +165,7 @@ class ParameterizedSingleFluxSplitter(ParameterizedElement):
     
     
 lower_splitter = ParameterizedSingleFluxSplitter(
-    parameters={'splitpar': 0.5610722878990446},
+    parameters={'splitpar': 0.5121888074487493},
     id='lowersplitter'
 )
 
@@ -183,7 +183,7 @@ upper_splitter = Splitter(
 )
 
 snow = SnowReservoir(
-    parameters={'t0': 0.0, 'k': 3.671979579888925, 'm': 2.0},
+    parameters={'t0': 0.0, 'k': 1.7644500269278343, 'm': 2.0},
     states={'S0': 0.0},
     approximation=num_app,
     id='snow'
@@ -203,35 +203,35 @@ upper_junction = Junction(
 
 
 unsaturated = UnsaturatedReservoir(
-    parameters={'Smax': 150.0, 'Ce': 0.9509033786507949, 'm': 0.01, 'beta': 0.839150540885298},
+    parameters={'Smax': 150.0, 'Ce': 1.201276697682664, 'm': 0.01, 'beta': 0.697150813655771},
     states={'S0': 10.0},
     approximation=num_app,
     id='unsaturated'
 )
 
 fast = PowerReservoir(
-    parameters={'k': 0.5495213312508491, 'alpha': 2.0},
+    parameters={'k': 0.31053871278382694, 'alpha': 2.0},
     states={'S0': 0.0},
     approximation=num_app,
     id='fast'
 )
 
 lowfast = PowerReservoir(
-    parameters={'k': 0.005395153169004338, 'alpha': 2.0},
+    parameters={'k': 0.0033505295771582037, 'alpha': 2.0},
     states={'S0': 0.0},
     approximation=num_app,
     id='lowfast'
 )
 
 slow = PowerReservoir(
-    parameters={'k': 0.06101573144448083, 'alpha': 1.0},
+    parameters={'k': 0.07070200407780769, 'alpha': 1.0},
     states={'S0': 0.0},
     approximation=num_app,
     id='slow'
 )
 
 slowhigh = PowerReservoir(
-    parameters={'k': 0.0003131844387092888, 'alpha': 2.0},
+    parameters={'k': 7.199557686325532e-05, 'alpha': 2.0},
     states={'S0': 0.0},
     approximation=num_app,
     id='slowhigh'
@@ -246,7 +246,7 @@ lower_junction = Junction(
 )
 
 lag_fun = HalfTriangularLag(
-    parameters={'lag-time': 2.3674349535193677},
+    parameters={'lag-time': 2.3339453495289115},
     states={'lag': None},
     id='lag-fun'
 )
@@ -446,7 +446,7 @@ catchments = [] # Dictionary to store nodes
 for cat_id in catchments_ids:
 
     unsaturated = CustomUnsaturatedReservoir(
-        parameters={'Csmax': 1.5, 'Ce': 0.9509033786507949, 'm': 0.01, 'beta': 0.839150540885298, 'bacon': waterdeficit_mean[cat_id]},
+        parameters={'Csmax': 1.5, 'Ce': 1.201276697682664, 'm': 0.01, 'beta': 0.697150813655771, 'bacon': waterdeficit_mean[cat_id]},
         states={'S0': 10.0},
         approximation=num_app,
         id='unsaturated')
@@ -699,7 +699,7 @@ parameters = list(best_params_dict.values())
 parameter_names_model = model.get_parameters_name()
 best_params_dict_model = assign_parameter_values(parameter_names_model, parameter_names, parameters)
 
-save_path = f"results/groups/best_params_regi_Group_1WD.csv"
+save_path = f"results/groups/best_params_regi_Group_2WD.csv"
 
 # Convert dictionary to DataFrame and save
 pd.DataFrame.from_dict(best_params_dict_model, orient='index').to_csv(save_path)
