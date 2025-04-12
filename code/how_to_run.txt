@@ -9,6 +9,7 @@ nohup python -u code/cluster/GaronneGlobGeoCluster_2.py > outputgaglob2.log 2>&1
 
 scp -r "data\models\inputgaronne" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
 scp -r "data\models\inputvienne" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
+scp -r "data/models/inputseine" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
 
 source ~/myenv/bin/activate
 
