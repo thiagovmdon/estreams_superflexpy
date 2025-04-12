@@ -21,3 +21,4 @@ nohup python -u code/cluster/VienneGlobGeoCluster_2.py > outputvilob2.log 2>&1 &
 
  
 scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputvienne data/models/
+scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputgaronne data/models/
