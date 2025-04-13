@@ -20,3 +20,15 @@ nohup python -u code/cluster/VienneGlobGeoCluster_2.py > outputvilob2.log 2>&1 &
 
  
 scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputvienne data/models/
+
+
+nohup python -u code/cluster/AdourContGeoCluster_1.py > outputadcont1.log 2>&1 &
+nohup python -u code/cluster/AdourContGeoCluster_2.py > outputadcont2.log 2>&1 &
+nohup python -u code/cluster/AdourGlobGeoCluster_1.py > outputadlob1.log 2>&1 &
+nohup python -u code/cluster/AdourGlobGeoCluster_2.py > outputadlob2.log 2>&1 &
+
+
+nohup python -u code/cluster/TavarelaContGeoCluster_1.py > outputtacont1.log 2>&1 &
+nohup python -u code/cluster/TavarelaContGeoCluster_2.py > outputtacont2.log 2>&1 &
+nohup python -u code/cluster/TavarelaGlobGeoCluster_1.py > outputtalob1.log 2>&1 &
+nohup python -u code/cluster/TavarelaGlobGeoCluster_2.py > outputtalob2.log 2>&1 &
