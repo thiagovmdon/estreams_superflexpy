@@ -1,0 +1,26 @@
+source ~/myenv/bin/activate
+
+nohup python -u code/cluster/GaronneContGeoCluster_1.py > outputgacont1.log 2>&1 &
+nohup python -u code/cluster/GaronneContGeoCluster_2.py > outputgacont2.log 2>&1 &
+nohup python -u code/cluster/GaronneGlobGeoCluster_1.py > outputgaglob1.log 2>&1 &
+nohup python -u code/cluster/GaronneGlobGeoCluster_2.py > outputgaglob2.log 2>&1 &
+
+
+
+scp -r "data\models\inputgaronne" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
+scp -r "data\models\inputvienne" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
+
+source ~/myenv/bin/activate
+
+nohup python -u code/cluster/VienneContGeoCluster_1.py > outputvicont1.log 2>&1 &
+nohup python -u code/cluster/VienneContGeoCluster_2.py > outputvicont2.log 2>&1 &
+nohup python -u code/cluster/VienneGlobGeoCluster_1.py > outputvilob1.log 2>&1 &
+nohup python -u code/cluster/VienneGlobGeoCluster_2.py > outputvilob2.log 2>&1 &
+
+
+ 
+scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputvienne data/models/
+
+
+scp -r "data/models/inputtavarela" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
+scp -r "data/models/inputadour" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
