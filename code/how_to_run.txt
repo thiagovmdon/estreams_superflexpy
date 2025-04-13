@@ -18,7 +18,5 @@ nohup python -u code/cluster/VienneGlobGeoCluster_1.py > outputvilob1.log 2>&1 &
 nohup python -u code/cluster/VienneGlobGeoCluster_2.py > outputvilob2.log 2>&1 &
 
 
-nohup python -u code/cluster/SeineContGeoCluster_1.py > outputsecont1.log 2>&1 &
-nohup python -u code/cluster/SeineContGeoCluster_2.py > outputsecont2.log 2>&1 &
-nohup python -u code/cluster/SeineGlobGeoCluster_1.py > outputselob1.log 2>&1 &
-nohup python -u code/cluster/SeineGlobGeoCluster_2.py > outputselob2.log 2>&1 &
+ 
+scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputvienne data/models/
