@@ -4,6 +4,8 @@ nohup python -u code/cluster/GaronneContGeoCluster_1.py > outputgacont1.log 2>&1
 nohup python -u code/cluster/GaronneContGeoCluster_2.py > outputgacont2.log 2>&1 &
 nohup python -u code/cluster/GaronneGlobGeoCluster_1.py > outputgaglob1.log 2>&1 &
 nohup python -u code/cluster/GaronneGlobGeoCluster_2.py > outputgaglob2.log 2>&1 &
+nohup python -u code/cluster/GaronneRegiGeoCluster_1.py > outputgaregi1.log 2>&1 &
+nohup python -u code/cluster/GaronneRegiGeoCluster_2.py > outputgaregi2.log 2>&1 &
 
 
 
