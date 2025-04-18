@@ -21,6 +21,13 @@ nohup python -u code/cluster/VienneGlobGeoCluster_2.py > outputvilob2.log 2>&1 &
 nohup python -u code/cluster/VienneRegiGeoCluster_1.py > outputvire1.log 2>&1 &
 nohup python -u code/cluster/VienneRegiGeoCluster_2.py > outputvire2.log 2>&1 &
 
+nohup python -u code/cluster/VienneContGeoCluster_1Sumax150.py > outputvicont1Sumax150.log 2>&1 &
+nohup python -u code/cluster/VienneContGeoCluster_2Sumax150.py > outputvicont2Sumax150.log 2>&1 &
+nohup python -u code/cluster/VienneGlobGeoCluster_1Sumax150.py > outputvilob1Sumax150.log 2>&1 &
+nohup python -u code/cluster/VienneGlobGeoCluster_2Sumax150.py > outputvilob2Sumax150.log 2>&1 &
+nohup python -u code/cluster/VienneRegiGeoCluster_1Sumax150.py > outputvire1Sumax150.log 2>&1 &
+nohup python -u code/cluster/VienneRegiGeoCluster_2Sumax150.py > outputvire2Sumax150.log 2>&1 &
+
  
 scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputvienne data/models/
 
