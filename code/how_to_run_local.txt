@@ -29,3 +29,8 @@ scp -r "data/models/inputadour" nascimth@siam-linux20:/home/EAWAG/nascimth/model
 scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputadour data/models/
 scp -r nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models/inputtavarela data/models/
 scp -r "data/models/inputgaronne" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
+
+
+
+scp -r "data/models/inputvienne" nascimth@siam-linux20:/home/EAWAG/nascimth/models/estreams_superflexpy/data/models
+
