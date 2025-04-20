@@ -494,7 +494,7 @@ for group in group_names:
             spotpy.parameter.Uniform("unsaturated_Ce", 0.1, 3.0),
             spotpy.parameter.Uniform("snow_k", 0.01, 10.0),
             spotpy.parameter.Uniform("unsaturated_Smax", 100.0, 600.0),
-            spotpy.parameter.Uniform("general_lowersplitter_splitpar", 0.5, 0.9),
+            spotpy.parameter.Uniform("general_lowersplitter_splitpar", 0.1, 0.9),
             spotpy.parameter.Uniform("unsaturated_beta", 0.01, 10.0),
             spotpy.parameter.Uniform("lag-fun_lag-time", 1.0, 10.0),
         ],
@@ -511,7 +511,7 @@ for group in group_names:
     )
 
     sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
-    sampler.sample(repetitions=30000)
+    sampler.sample(repetitions=50000)
 
     results = sampler.getdata()                                                  # Load the results
     spotpy.analyser.plot_parametertrace(results)                                 # Show the results
@@ -535,7 +535,7 @@ for group in group_names:
     parameter_names_model = model.get_parameters_name()
     best_params_dict_model = assign_parameter_values(parameter_names_model, parameter_names, parameters)
 
-    save_path = f"results/groups/best_params_regi_{group}.csv"
+    save_path = f"results/groups/moselle_best_params_regi_{group}.csv"
 
     # Convert dictionary to DataFrame and save
     pd.DataFrame.from_dict(best_params_dict_model, orient='index').to_csv(save_path)
