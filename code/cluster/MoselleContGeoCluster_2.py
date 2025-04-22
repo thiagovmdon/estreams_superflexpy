@@ -144,7 +144,7 @@ combined_df = pd.read_csv("data/network_estreams_moselle_108_gauges.csv")
 
 # Loop over groups
 group_names = combined_df['group'].unique()
-for group in group_names[3:]:
+for group in group_names:
     print(f"\n Running calibration for {group}...")
 
     # Select catchments in this group and remove LU gauges
