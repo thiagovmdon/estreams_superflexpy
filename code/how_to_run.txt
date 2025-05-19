@@ -50,3 +50,6 @@ nohup python -u code/cluster/MoselleGlobGeoCluster_1.py > outputmoglob1.log 2>&1
 nohup python -u code/cluster/MoselleGlobGeoCluster_2.py > outputmoglob2.log 2>&1 &
 nohup python -u code/cluster/MoselleRegiGeoCluster_1.py > outputmoregi1.log 2>&1 &
 nohup python -u code/cluster/MoselleRegiGeoCluster_2.py > outputmoregi2.log 2>&1 &
+
+
+nohup python -u code/cluster/MoselleNoGeoCluster_1.py > ouput.log 2>&1 &
