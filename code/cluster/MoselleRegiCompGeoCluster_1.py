@@ -535,13 +535,14 @@ for group in group_names[4:]:
 
     bestindex, bestobjf = spotpy.analyser.get_minlikeindex(results)               # Get the best indexes and objective function
 
-
     spotpy.analyser.get_parameters(results)[bestindex]
 
     best_params_dict = dict(zip(spotpy.analyser.get_parameternames(results), spotpy.analyser.get_parameters(results)[bestindex]))
 
     #if 'splitpar' in best_params_dict:
     #    best_params_dict['general_lowersplitter_splitpar'] = best_params_dict.pop('splitpar')
+
+    best_params_dict['lag-fun_lag-time'] = best_params_dict.pop('lagfun_lagtime')
 
     # Remove spaces and replace with underscores (or any other transformation)
     best_params_dict = {key.replace(" ", ""): value for key, value in best_params_dict.items()}

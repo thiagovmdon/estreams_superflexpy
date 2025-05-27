@@ -5,6 +5,7 @@ high_unsaturated_Ce,0.7795186
 high_unsaturated_beta,2.3869524
 high_lowersplitter_splitpar,0.82409215
 high_slow_k,0.0022476774
+high_lag-fun_lag-time,2.12816
 high_fast_k,0.49037716
 general_snow_k,2.5930257
 general_unsaturated_Smax,143.3108
@@ -12,6 +13,7 @@ general_unsaturated_Ce,0.7795186
 general_unsaturated_beta,2.3869524
 general_lowersplitter_splitpar,0.19000666
 general_slow_k,0.00094361487
+general_lag-fun_lag-time,2.12816
 general_fast_k,0.022523783
 low_snow_k,2.5930257
 low_unsaturated_Smax,143.3108
@@ -19,4 +21,5 @@ low_unsaturated_Ce,0.7795186
 low_unsaturated_beta,2.3869524
 low_lowersplitter_splitpar,0.65436995
 low_slow_k,0.09113448
+low_lag-fun_lag-time,2.12816
 low_fast_k,0.06726674
