@@ -18,3 +18,6 @@ __pycache__/
 !data/metadata/*
 *.log
 bin/
+sceua_results_regi1.csv
+sceua_results_regi2.csv
+sceua_results_glob2.csv

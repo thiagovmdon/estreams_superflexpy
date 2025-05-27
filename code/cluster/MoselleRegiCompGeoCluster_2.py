@@ -143,7 +143,7 @@ combined_df = pd.read_csv("data/network_estreams_moselle_108_gauges.csv")
 
 # Loop over groups
 group_names = combined_df['group'].unique()
-for group in group_names:
+for group in group_names[2:]:
     print(f"\n Running calibration for {group}...")
 
     # Select catchments in this group and remove LU gauges
@@ -522,10 +522,14 @@ for group in group_names:
 
     )
 
-    sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
+    #sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
+    sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname='sceua_results_regi2', dbformat='csv')
+
     sampler.sample(repetitions=50000)
 
-    results = sampler.getdata()                                                  # Load the results
+    #results = sampler.getdata()                                                  # Load the results
+    results = spotpy.analyser.load_csv_results('sceua_results_regi2')
+
     spotpy.analyser.plot_parametertrace(results)                                 # Show the results
 
     bestindex, bestobjf = spotpy.analyser.get_minlikeindex(results)               # Get the best indexes and objective function
