@@ -522,10 +522,14 @@ for group in group_names[2:3]:
 
     )
 
-    sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
+    #sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname=None, dbformat='ram')
+    sampler = spotpy.algorithms.sceua(spotpy_hyd_mod, dbname='sceua_results_glob1', dbformat='csv')
+
     sampler.sample(repetitions=50000)
 
-    results = sampler.getdata()                                                  # Load the results
+    #results = sampler.getdata()                                                  # Load the results
+    results = spotpy.analyser.load_csv_results('sceua_results_glob1')
+
     spotpy.analyser.plot_parametertrace(results)                                 # Show the results
 
     bestindex, bestobjf = spotpy.analyser.get_minlikeindex(results)               # Get the best indexes and objective function
