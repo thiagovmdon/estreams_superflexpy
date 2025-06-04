@@ -288,47 +288,6 @@ for group in group_names[0:1]:
         id='lower-transparent2'
     )
 
-    general = Unit(
-        layers=[
-            [upper_splitter],
-            [snow, upper_transparent],
-            [upper_junction],
-            [unsaturated],
-            [lower_splitter],
-            [slow, lag_fun],
-            [lower_transparent, fast],
-            [lower_junction],
-        ],
-        id='general'
-    )
-
-    low = Unit(
-        layers=[
-            [upper_splitter],
-            [snow, upper_transparent],
-            [upper_junction],
-            [unsaturated],
-            [lower_splitter],
-            [slow, lag_fun],
-            [lower_transparent, fast],
-            [lower_junction],
-        ],
-        id='low'
-    )
-
-    high = Unit(
-        layers=[
-            [upper_splitter],
-            [snow, upper_transparent],
-            [upper_junction],
-            [unsaturated],
-            [lower_splitter],
-            [slow, lag_fun],
-            [lower_transparent, fast],
-            [lower_junction],
-        ],
-        id='high'
-    )
 
     import numba as nb
     from superflexpy.framework.element import ODEsElement
@@ -521,7 +480,49 @@ for group in group_names[0:1]:
         states={'S0': 10.0},
         approximation=num_app,
         id='unsaturated')
-            
+        
+        general = Unit(
+            layers=[
+                [upper_splitter],
+                [snow, upper_transparent],
+                [upper_junction],
+                [unsaturated],
+                [lower_splitter],
+                [slow, lag_fun],
+                [lower_transparent, fast],
+                [lower_junction],
+            ],
+            id='general'
+        )
+
+        low = Unit(
+            layers=[
+                [upper_splitter],
+                [snow, upper_transparent],
+                [upper_junction],
+                [unsaturated],
+                [lower_splitter],
+                [slow, lag_fun],
+                [lower_transparent, fast],
+                [lower_junction],
+            ],
+            id='low'
+        )
+
+        high = Unit(
+            layers=[
+                [upper_splitter],
+                [snow, upper_transparent],
+                [upper_junction],
+                [unsaturated],
+                [lower_splitter],
+                [slow, lag_fun],
+                [lower_transparent, fast],
+                [lower_junction],
+            ],
+            id='high'
+        )
+
         node = Node(
             units=[high, general, low],  # Use unit from dictionary or default
             weights=perm_areas[cat_id],
