@@ -476,53 +476,53 @@ for group in group_names[0:1]:
     for cat_id in catchments_ids:
 
         unsaturated = CustomUnsaturatedReservoir(
-        parameters={'Csmax': 1.5, 'Ce': 0.9509033786507949, 'm': 0.01, 'beta': 0.839150540885298, 'bacon': rootdepth_mean[cat_id]},
-        states={'S0': 10.0},
-        approximation=num_app,
-        id='unsaturated')
+            parameters={'Csmax': 1.5, 'Ce': 1.0, 'm': 0.01, 'beta': 2.0, 'bacon': rootdepth_mean[cat_id]},
+            states={'S0': 10.0},
+            approximation=num_app,
+            id='unsaturated')
         
         general = Unit(
             layers=[
-                [upper_splitter],
-                [snow, upper_transparent],
-                [upper_junction],
-                [unsaturated],
-                [lower_splitter],
-                [slow, lag_fun],
-                [lower_transparent, fast],
-                [lower_junction],
+            [upper_splitter],
+            [snow, upper_transparent],
+            [upper_junction],
+            [unsaturated],
+            [lower_splitter],
+            [slow, lag_fun],
+            [lower_transparent, fast],
+            [lower_junction],
             ],
             id='general'
-        )
+            )
 
         low = Unit(
             layers=[
-                [upper_splitter],
-                [snow, upper_transparent],
-                [upper_junction],
-                [unsaturated],
-                [lower_splitter],
-                [slow, lag_fun],
-                [lower_transparent, fast],
-                [lower_junction],
+            [upper_splitter],
+            [snow, upper_transparent],
+            [upper_junction],
+            [unsaturated],
+            [lower_splitter],
+            [slow, lag_fun],
+            [lower_transparent, fast],
+            [lower_junction],
             ],
             id='low'
-        )
+            )
 
         high = Unit(
             layers=[
-                [upper_splitter],
-                [snow, upper_transparent],
-                [upper_junction],
-                [unsaturated],
-                [lower_splitter],
-                [slow, lag_fun],
-                [lower_transparent, fast],
-                [lower_junction],
+            [upper_splitter],
+            [snow, upper_transparent],
+            [upper_junction],
+            [unsaturated],
+            [lower_splitter],
+            [slow, lag_fun],
+            [lower_transparent, fast],
+            [lower_junction],
             ],
             id='high'
-        )
-
+            )
+            
         node = Node(
             units=[high, general, low],  # Use unit from dictionary or default
             weights=perm_areas[cat_id],
@@ -583,7 +583,6 @@ for group in group_names[0:1]:
                 filtered_parameters[param_name] = param_value_dict[param_name]
         
         return filtered_parameters  # Return dictionary of matched parameters
-
 
     class spotpy_model(object):
 
@@ -689,7 +688,6 @@ for group in group_names[0:1]:
 
             spotpy.parameter.Uniform("unsaturated_Ce", 0.1, 3.0),
             spotpy.parameter.Uniform("snow_k", 0.01, 10.0),
-            spotpy.parameter.Uniform("unsaturated_Smax", 100.0, 600.0),
 
             spotpy.parameter.Uniform("general_lowersplitter_splitpar", 0.1, 0.9),
             spotpy.parameter.Uniform("high_lowersplitter_splitpar", 0.1, 0.9),
@@ -702,7 +700,7 @@ for group in group_names[0:1]:
         ],
         parameter_names=[
             "general_fast_k", "low_fast_k", "high_fast_k",
-            "high_slow_k", "general_slow_k", "low_slow_k", "unsaturated_Ce", "snow_k", "unsaturated_Smax", "general_lowersplitter_splitpar", "high_lowersplitter_splitpar", "low_lowersplitter_splitpar",
+            "high_slow_k", "general_slow_k", "low_slow_k", "unsaturated_Ce", "snow_k", "general_lowersplitter_splitpar", "high_lowersplitter_splitpar", "low_lowersplitter_splitpar",
             "unsaturated_beta", "lag-fun_lag-time","unsaturated_Csmax",
         ],
         parameter_names_model = model.get_parameters_name(),
