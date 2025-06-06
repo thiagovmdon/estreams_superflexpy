@@ -288,47 +288,6 @@ for group in group_names[0:1]:
         id='lower-transparent2'
     )
 
-    general = Unit(
-        layers=[
-            [upper_splitter],
-            [snow, upper_transparent],
-            [upper_junction],
-            [unsaturated],
-            [lower_splitter],
-            [slow, lag_fun],
-            [lower_transparent, fast],
-            [lower_junction],
-        ],
-        id='general'
-    )
-
-    low = Unit(
-        layers=[
-            [upper_splitter],
-            [snow, upper_transparent],
-            [upper_junction],
-            [unsaturated],
-            [lower_splitter],
-            [slow, lag_fun],
-            [lower_transparent, fast],
-            [lower_junction],
-        ],
-        id='low'
-    )
-
-    high = Unit(
-        layers=[
-            [upper_splitter],
-            [snow, upper_transparent],
-            [upper_junction],
-            [unsaturated],
-            [lower_splitter],
-            [slow, lag_fun],
-            [lower_transparent, fast],
-            [lower_junction],
-        ],
-        id='high'
-    )
 
     import numba as nb
     from superflexpy.framework.element import ODEsElement
