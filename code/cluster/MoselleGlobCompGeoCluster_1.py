@@ -552,7 +552,7 @@ for group in group_names[2:3]:
     parameter_names_model = model.get_parameters_name()
     best_params_dict_model = assign_parameter_values(parameter_names_model, parameter_names, parameters)
 
-    save_path = f"results/groups/moselle_best_params_globcomp_{group}.csv"
+    save_path = f"results/groups/moselle_best_params_globcomp_{group}_2.csv"
 
     # Convert dictionary to DataFrame and save
     pd.DataFrame.from_dict(best_params_dict_model, orient='index').to_csv(save_path)
