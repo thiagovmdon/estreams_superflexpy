@@ -18,6 +18,7 @@ __pycache__/
 !data/metadata/*
 *.log
 bin/
+other_basins_tests/
 sceua_results_regi1.csv
 sceua_results_regi2.csv
 sceua_results_glob2.csv
