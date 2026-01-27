@@ -23,6 +23,8 @@ data/models/inputgaronne/*
 data/models/inputtavarela/*
 data/models/inputvienne/*
 
+*.pt
+*.p
 
 *.log
 bin/
@@ -38,5 +40,23 @@ results/groups/moselle_not_complex/
 results/groups/others/
 results/groups/RD_WD/
 results/others/
-
+results/01_bucket_params/others
 results/supporting_information
+
+results/plots/
+results/supporting_information/
+
+
+results/LSTM/*/
+!results/*.md
+results/sim/*/
+!results/*.md
+
+# Ignore everything in results
+results/**
+
+# Allow directories so Git can traverse
+!results/**/
+
+# Allow markdown documentation only
+!results/**/*.md
