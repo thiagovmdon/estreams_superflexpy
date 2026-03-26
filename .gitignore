@@ -60,3 +60,5 @@ results/**
 
 # Allow markdown documentation only
 !results/**/*.md
+
+code/export_without_obs.ipynb
