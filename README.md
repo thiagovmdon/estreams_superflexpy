@@ -1,4 +1,4 @@
-# Repository for **Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models**  
+# Repository for **"Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models"**
 
 by do Nascimento et al. (2026) — *Water Resources Research*
 
@@ -25,6 +25,7 @@ The short answer: yes, better catchment attributes helps in both model types and
 - **Data-driven (LSTM):** NeuralHydrology `cudalstm` with 128 hidden units, trained with static geological attributes as additional inputs. 5-fold spatial cross-validation × 5 random seeds.
 
 > Dal Molin, M., Kavetski, D., & Fenicia, F. (2021). SuperflexPy 1.3.0: an open-source Python framework for building, testing, and improving conceptual hydrological models. Geoscientific Model Development, 14(11), 7047–7072. https://doi.org/10.5194/gmd-14-7047-2021
+
 > Kratzert, F., Gauch, M., Nearing, G., & Klotz, D. (2022). NeuralHydrology — A Python library for Deep Learningresearch in hydrology. Journal of Open Source Software, 7(71), 4050. https://doi.org/10.21105/joss.04050
 
 **Five geology experiments:**

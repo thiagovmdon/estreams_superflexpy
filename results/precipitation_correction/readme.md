@@ -10,10 +10,12 @@ This directory contains the climatology tables used to derive and apply the Garo
 
 ## Correction approach
 
-EStreams precipitation underestimates high-elevation rainfall in the Garonne. The correction factor is estimated from a regression of mean elevation against the ratio of CAMELS-FR to EStreams long-term mean precipitation:
+E-OBS precipitation data in EStreams underestimates high-elevation rainfall in the Garonne (Clerc-Schwarzenbach and do Nascimento, 2025). The correction factor is estimated from a regression of mean elevation against the ratio of CAMELS-FR to EStreams long-term mean precipitation:
 
 ```
 k_pre = exp(0.0107 + 2.46e-4 * elevation_mean)
 ```
 
 This factor is applied multiplicatively to the daily Garonne precipitation time series before model inputs are assembled.
+
+> Clerc-Schwarzenbach, F. and do Nascimento, T. V. M.: Evaluating E-OBS forcing data for large-sample hydrology using model performance diagnostics, Hydrol. Earth Syst. Sci., 30, 119–140, https://doi.org/10.5194/hess-30-119-2026, 2026.
