@@ -1,7 +1,6 @@
-# estreams_superflexpy
+# Repository for **Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models**  
 
-**Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models**  
-do Nascimento et al. (2026) — *Water Resources Research*
+by do Nascimento et al. (2026) — *Water Resources Research*
 
 ---
 
@@ -24,6 +23,9 @@ The short answer: yes, better catchment attributes helps in both model types and
 
 - **Process-based (PB):** SuperflexPy with three HRU types (high / medium / low permeability), one per geology class. HRU weights come directly from the permeability fractions of each map. Calibrated with SCE-UA (SPOTPY library) on a computing cluster, 7 groups for Moselle and 2 for Garonne (leave-one-group-out spatial cross-validation).
 - **Data-driven (LSTM):** NeuralHydrology `cudalstm` with 128 hidden units, trained with static geological attributes as additional inputs. 5-fold spatial cross-validation × 5 random seeds.
+
+> Dal Molin, M., Kavetski, D., & Fenicia, F. (2021). SuperflexPy 1.3.0: an open-source Python framework for building, testing, and improving conceptual hydrological models. Geoscientific Model Development, 14(11), 7047–7072. https://doi.org/10.5194/gmd-14-7047-2021
+> Kratzert, F., Gauch, M., Nearing, G., & Klotz, D. (2022). NeuralHydrology — A Python library for Deep Learningresearch in hydrology. Journal of Open Source Software, 7(71), 4050. https://doi.org/10.21105/joss.04050
 
 **Five geology experiments:**
 
@@ -70,7 +72,7 @@ The notebooks are designed to be run in order. Each one picks up where the previ
 - [Part-2b (LSTM)](./code/Part-2b-model-LSTM-export-input-files.ipynb) — build `attributes.csv`, basin list files, and the 125 NeuralHydrology config files; applies `k_pre` correction to Garonne precipitation
 
 ### Step 3 — Calibration (process-based only)
-> ⚠️ The actual parameter search (SCE-UA) is run on a HPC cluster using the scripts in `code/00_cluster/`. The notebooks below assume calibrated parameters are already available in `results/groups/`.
+> The actual parameter search (SCE-UA) is run on a HPC cluster using the scripts in `code/00_cluster/`. The notebooks below assume calibrated parameters are already available in `results/groups/`.
 
 - [Part-3a (Moselle)](./code/Part-3a-model-PB-Moselle-calibration.ipynb) — run forward model with best parameters, save calibration-period simulations
 - [Part-3b (Garonne)](./code/Part-3b-model-PB-Garonne-calibration.ipynb) — same for Garonne
@@ -101,6 +103,12 @@ All input data needed to run the notebooks:
 
 Set the `path_estreams` and `path_data` variables in the Configurations cell of each notebook before running.
 
+> **Note on `observations.npy`:** The observed streamflow arrays (`data/models/input/subset_*/observations.npy`) are excluded from this repository because of redistribution licenses issues. They were derived directly from EStreams. They are regenerated automatically when Part-2a is run from scratch with the raw data downloaded.
+
+> **Note on calibration parameters and simulation outputs:** The best-parameter CSVs (`results/groups/`) and all model simulation NetCDFs (`results/sim/`, `results/LSTM/`) are not tracked in this repository due to their size. They are provided as Supporting Information via the Zenodo archive published alongside the paper (https://doi.org/10.5281/zenodo.18392387).
+
+> do Nascimento, T. V. M.(2026). Data from "Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models" (0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18392387
+
 ---
 
 ## Environment
@@ -120,9 +128,8 @@ Key packages: `Python 3.9`, `pandas`, `numpy`, `xarray`, `geopandas`, `rasterio`
 
 ## Citation
 
-If you use this code or data, please cite:
+If you use this code or data, please cite the accompaining paper:
 
-> do Nascimento, T. V. M., et al. (2026). Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models. *Water Resources Research*.
 
 ---
 

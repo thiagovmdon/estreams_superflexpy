@@ -61,6 +61,9 @@ results/**
 # Allow markdown documentation only
 !results/**/*.md
 
+# Allow precipitation correction CSVs (inputs/outputs of Part-2a)
+!results/precipitation_correction/*.csv
+
 code/export_without_obs.ipynb
 /Users/nascimth/Library/CloudStorage/OneDrive-Eawag/Eawag/Papers/Moselle_superflexpy/GitHub/estreams_superflexpy/code/Part-E-figures-and-analysis-extras.ipynb
 /Users/nascimth/Library/CloudStorage/OneDrive-Eawag/Eawag/Papers/Moselle_superflexpy/GitHub/estreams_superflexpy/code/Part-F-figures-and-analysis-LSTM-extras.ipynb
