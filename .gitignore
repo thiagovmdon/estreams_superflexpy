@@ -62,3 +62,7 @@ results/**
 !results/**/*.md
 
 code/export_without_obs.ipynb
+/Users/nascimth/Library/CloudStorage/OneDrive-Eawag/Eawag/Papers/Moselle_superflexpy/GitHub/estreams_superflexpy/code/Part-E-figures-and-analysis-extras.ipynb
+/Users/nascimth/Library/CloudStorage/OneDrive-Eawag/Eawag/Papers/Moselle_superflexpy/GitHub/estreams_superflexpy/code/Part-F-figures-and-analysis-LSTM-extras.ipynb
+code/Part-F-figures-and-analysis-LSTM-extras.ipynb
+code/Part-E-figures-and-analysis-extras.ipynb
