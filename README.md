@@ -1,1 +1,132 @@
 # estreams_superflexpy
+
+**Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models**  
+do Nascimento et al. (2026) — *Water Resources Research*
+
+---
+
+## What is this about?
+
+How much does the resolution of a geological map actually matter for streamflow prediction in ungauged basins? That is the central question of this study. We test five levels of geological information — from no geology at all, through global and continental datasets, all the way up to high-resolution regional maps — inside two very different modelling frameworks: a process-based model (SuperflexPy) and a data-driven model (LSTM via NeuralHydrology).
+
+The study covers **130 catchments** across two French river systems: the **Moselle** (108 gauges, including Luxembourg and German tributaries) and the **Garonne** (22 gauges). Both basins have strong geological gradients, from crystalline basement in the Vosges and Massif Central to sedimentary plains (do Nascimento et al., 2025), making them good test cases for this kind of experiment.
+
+The short answer: yes, better catchment attributes helps in both model types and particularly when predicting in ungauged basins.
+
+> do Nascimento, T. V. M., Rudlang, J., Gnann, S., Seibert, J., Hrachowitz, M., and Fenicia, F.: How do geological map details influence the identification of geology-streamflow relationships in large-sample hydrology studies?, Hydrol. Earth Syst. Sci., 29, 7173–7200, https://doi.org/10.5194/hess-29-7173-2025, 2025.
+
+
+---
+
+## Modelling setup
+
+**Two model types:**
+
+- **Process-based (PB):** SuperflexPy with three HRU types (high / medium / low permeability), one per geology class. HRU weights come directly from the permeability fractions of each map. Calibrated with SCE-UA (SPOTPY library) on a computing cluster, 7 groups for Moselle and 2 for Garonne (leave-one-group-out spatial cross-validation).
+- **Data-driven (LSTM):** NeuralHydrology `cudalstm` with 128 hidden units, trained with static geological attributes as additional inputs. 5-fold spatial cross-validation × 5 random seeds.
+
+**Five geology experiments:**
+
+| Experiment | Label | Description |
+|---|---|---|
+| No geology | `nog` | Baseline — no permeability attributes |
+| Random geology | `ran` | Randomly sampled permeability fractions (reproducibility control) |
+| Global scale | `glo` | GLiM global lithological map (Hartmann & Moosdorf, 2012) |
+| Continental scale | `con` | IHME-1500 |
+| Regional scale | `reg` | High-resolution national geological maps (e.g., BD LISA for France) — the most detailed |
+
+**Performance metric:** modified NSE on square-root transformed flows (expo = 0.5), which gives more balanced weight to low and high flows compared to the standard NSE.
+
+**Precipitation correction (Garonne only):** EStreams precipitation is known to underestimate high-elevation rainfall in the Garonne. A catchment-specific correction factor `k_pre = exp(0.0107 + 2.46×10⁻⁴ × elevation_mean)` is derived from a regression against CAMELS-FR long-term mean precipitation and applied multiplicatively to all Garonne daily precipitation time series before model input. The corrected climatology is stored in `results/precipitation_correction/garonne_clim_with_kpre.csv` and used in both the process-based (Part-2a) and LSTM (Part-2b) input preparation steps.
+
+---
+
+## Repository structure
+
+```
+estreams_superflexpy/
+├── code/                   ← all Jupyter notebooks
+│   └── 00_cluster/         ← Python scripts for HPC calibration (SuperflexPy + SPOTPY)
+├── data/                   ← input CSV/xlsx files and model inputs (.npy)
+├── results/                ← simulation outputs (.nc), figures, and tables
+└── environments/           ← environment.yml and requirements.txt
+```
+
+---
+
+## Workflow
+
+The notebooks are designed to be run in order. Each one picks up where the previous left off.
+
+### Step 0 — Regional geology for the Garonne
+- [Part-0](./code/Part-0-exporting-geology-regional-garonne.ipynb) — extract lithological fractions from the BD LISA shapefile for the 22 Garonne catchments → produces `estreams_geology_garonne_regional_attributes.csv`
+
+### Step 1 — Filter catchments and define groups
+- [Part-1a (Moselle)](./code/Part-1a-folds-PB-Moselle-filtering-preprocessing.ipynb) — quality filtering, network delineation, 7-fold CV group assignments → `network_estreams_moselle_108_gauges.csv`
+- [Part-1b (Garonne)](./code/Part-1b-folds-PB-Garonne-filtering-preprocessing.ipynb) — same for Garonne (2-fold CV) → `network_estreams_garonne_22_gauges.csv`
+
+### Step 2 — Export model inputs
+- [Part-2a (Process-based)](./code/Part-2a-model-PB-export-input-files.ipynb) — build forcing/observation arrays and HRU weight `.npy` files for each geology experiment and group → `data/models/input/`; also derives the Garonne precipitation correction (`k_pre`)
+- [Part-2b (LSTM)](./code/Part-2b-model-LSTM-export-input-files.ipynb) — build `attributes.csv`, basin list files, and the 125 NeuralHydrology config files; applies `k_pre` correction to Garonne precipitation
+
+### Step 3 — Calibration (process-based only)
+> ⚠️ The actual parameter search (SCE-UA) is run on a HPC cluster using the scripts in `code/00_cluster/`. The notebooks below assume calibrated parameters are already available in `results/groups/`.
+
+- [Part-3a (Moselle)](./code/Part-3a-model-PB-Moselle-calibration.ipynb) — run forward model with best parameters, save calibration-period simulations
+- [Part-3b (Garonne)](./code/Part-3b-model-PB-Garonne-calibration.ipynb) — same for Garonne
+
+### Step 4 — Evaluation simulations (process-based)
+- [Part-4a — Moselle, geology experiments](./code/Part-4a-model-PB-Moselle-evaluation-geology.ipynb)
+- [Part-4b — Moselle, no-geology benchmark](./code/Part-4b-model-PB-Moselle-evaluation-no-geology.ipynb)
+- [Part-4c — Moselle, random geology](./code/Part-4c-model-PB-Moselle-evaluation-random.ipynb)
+- [Part-4d — Garonne, geology experiments](./code/Part-4d-model-PB-Garonne-evaluation-geology.ipynb)
+- [Part-4e — Garonne, no-geology benchmark](./code/Part-4e-model-PB-Garonne-evaluation-no-geology.ipynb)
+- [Part-4f — Garonne, random geology](./code/Part-4f-model-PB-Garonne-evaluation-random.ipynb)
+
+### Step 5 — Figures and analysis
+- [Part-5 (Process-based)](./code/Part-5-figures-and-analysis-Bucket.ipynb) — all PB model figures, performance tables, Wilcoxon tests, SI tables
+- [Part-5 (extras)](./code/Part-5-figures-and-analysis-extras.ipynb) — additional PB figures and supplementary analysis
+- [Part-6 (LSTM)](./code/Part-6-figures-and-analysis-LSTM.ipynb) — all LSTM figures, performance tables, Wilcoxon tests, SI tables
+- [Part-6 (extras)](./code/Part-6-figures-and-analysis-LSTM-extras.ipynb) — additional LSTM figures and supplementary analysis
+
+---
+
+## Data
+
+All input data needed to run the notebooks:
+
+- **EStreams v1.4** (streamflow time series + gauge metadata + catchment shapefiles): https://doi.org/10.5281/zenodo.17598150
+- **Regional geology for Moselle** (31-class lithological fractions): https://doi.org/10.5281/zenodo.18392387
+- **Filtered catchment attributes** (do Nascimento et al., 2025): https://github.com/thiagovmdon/LSH-quality_geology
+
+Set the `path_estreams` and `path_data` variables in the Configurations cell of each notebook before running.
+
+---
+
+## Environment
+
+```bash
+# With conda (recommended)
+conda env create -f environments/environment.yml
+conda activate estreams_superflexpy
+
+# Or with pip
+pip install -r environments/requirements.txt
+```
+
+Key packages: `Python 3.9`, `pandas`, `numpy`, `xarray`, `geopandas`, `rasterio`, `matplotlib`, `seaborn`, `scipy`, `spotpy`, `superflexpy`, `neuralhydrology`, `hydroanalysis`, `tqdm`
+
+---
+
+## Citation
+
+If you use this code or data, please cite:
+
+> do Nascimento, T. V. M., et al. (2026). Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models. *Water Resources Research*.
+
+---
+
+## Contact
+
+Thiago Nascimento — thiago.nascimento@eawag.ch  
+Eawag, Swiss Federal Institute of Aquatic Science and Technology
