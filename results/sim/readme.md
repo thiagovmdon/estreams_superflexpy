@@ -1,138 +1,45 @@
-# Simulation Results
+# Simulation Output Files
 
-This directory documents the **simulation outputs** used in the study.
-All result files are **not tracked in the GitHub repository** due to their size and are instead provided as **Supporting Information via Zenodo**, published alongside the paper.
+This directory contains the **NetCDF simulation outputs** from both the SuperflexPy process-based model and the NeuralHydrology LSTM, used in Part-5 and Part-6 for performance evaluation and figure generation.
+
+**These files are not tracked in this GitHub repository.** Download them from the Supporting Information Zenodo archive:
+
+> Medeiros do Nascimento, T. V. (2026). Data from "Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models" (0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18392387
+
+Place the downloaded folders directly under `results/sim/` before running Part-5 or Part-6 notebooks.
 
 ---
 
 ## Directory structure
 
+```
 results/sim/
 ├── sim_garonne/
+│   ├── calibration/
+│   │   ├── simu_cal_Group_1.nc
+│   │   └── simu_cal_Group_2.nc
+│   ├── space/
+│   │   ├── simu_Group_1.nc
+│   │   └── simu_Group_2.nc
+│   └── space-time/
+│       ├── simu_Group_1.nc
+│       └── simu_Group_2.nc
 ├── sim_moselle/
+│   ├── calibration/
+│   │   ├── simu_cal_Group_1.nc  ...  simu_cal_Group_7.nc
+│   ├── space/
+│   │   ├── simu_Group_1.nc  ...  simu_Group_7.nc
+│   └── space-time/
+│       ├── simu_Group_1.nc  ...  simu_Group_7.nc
 └── sim_lstm/
-
-
----
-
-## 1. sim_garonne
-
-**Path:**
-results/sim/sim_garonne/
-
-
-This directory contains **SuperflexPy simulation outputs** for the **Garonne catchment**, stored as NetCDF (`.nc`) files.
-
-### 1.1 Calibration simulations
-
-**Path:**
-results/sim/sim_garonne/calibration/
-
-Files:
-- `simu_cal_Group_1.nc`
-- `simu_cal_Group_2.nc`
-
-Each file corresponds to a **calibration group**, as defined in the experimental setup.
-
-### 1.2 Spatial simulations
-
-**Path:**
-results/sim/sim_garonne/space/
-
-Files:
-- `simu_Group_1.nc`
-- `simu_Group_2.nc`
-
-These simulations apply calibrated parameters across space only.
-
-### 1.3 Space–time simulations
-
-**Path:**
-results/sim/sim_garonne/space-time/
-
-Files:
-- `simu_Group_1.nc`
-- `simu_Group_2.nc`
-
-These outputs correspond to combined **space–time transfer experiments**.
+    ├── space/
+    ├── time/
+    └── space-time/
+```
 
 ---
 
-## 2. sim_moselle
+## Description
 
-**Path:**
-results/sim/sim_moselle/
-
-This directory mirrors the structure of `sim_garonne`, but for the **Moselle catchment**.
-
-### 2.1 Calibration simulations
-
-**Path:**
-results/sim/sim_moselle/calibration/
-
-
-Files:
-- `simu_cal_Group_1.nc`
-- `simu_cal_Group_2.nc`
-- `simu_cal_Group_3.nc`
-- `simu_cal_Group_4.nc`
-- `simu_cal_Group_5.nc`
-- `simu_cal_Group_6.nc`
-- `simu_cal_Group_7.nc`
-
-
-### 2.2 Spatial simulations
-
-**Path:**
-results/sim/sim_moselle/space/
-
-Files:
-- `simu_Group_1.nc`
-- `simu_Group_2.nc`
-- `simu_Group_3.nc`
-- `simu_Group_4.nc`
-- `simu_Group_5.nc`
-- `simu_Group_6.nc`
-- `simu_Group_7.nc`
-
-### 2.3 Space–time simulations
-
-**Path:**
-results/sim/sim_moselle/space-time/
-
-Files:
-- `simu_Group_1.nc`
-- `simu_Group_2.nc`
-- `simu_Group_3.nc`
-- `simu_Group_4.nc`
-- `simu_Group_5.nc`
-- `simu_Group_6.nc`
-- `simu_Group_7.nc`
-
----
-
-## 3. sim_lstm
-
-**Path:**
-results/sim/sim_lstm/
-
-This directory contains **processed LSTM simulation outputs** derived from the NeuralHydrology experiments.
-
-- Outputs are stored in NetCDF format.
-- Files aggregate LSTM predictions for use in evaluation and comparison with SuperflexPy simulations.
-- The raw NeuralHydrology run directories are documented separately under `results/LSTM/`.
-
----
-
-## Availability and reproducibility
-
-- All simulation outputs in this directory are provided in the **Zenodo Supporting Information** associated with the paper.
-- This GitHub repository contains only the **code and lightweight metadata** required to reproduce the experiments.
-- Users should download the Zenodo archive to access the full set of simulation results.
-
----
-
-## Notes
-
-- Group definitions, experiment design, and evaluation metrics are described in the paper.
-- File naming conventions are consistent across catchments to facilitate automated analysis.
+- **`sim_garonne/` and `sim_moselle/`** — SuperflexPy outputs for each catchment, split by transfer type (calibration, space-only transfer, space–time transfer) and group.
+- **`sim_lstm/`** — Aggregated LSTM predictions in NetCDF format, derived from the raw NeuralHydrology run directories in `results/LSTM/` (see that directory's readme for details on the raw runs).

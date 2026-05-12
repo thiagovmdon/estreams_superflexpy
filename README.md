@@ -98,16 +98,16 @@ The notebooks are designed to be run in order. Each one picks up where the previ
 All input data needed to run the notebooks:
 
 - **EStreams v1.4** (streamflow time series + gauge metadata + catchment shapefiles): https://doi.org/10.5281/zenodo.17598150
-- **Regional geology for Moselle** (31-class lithological fractions): https://doi.org/10.5281/zenodo.18392387
 - **Filtered catchment attributes** (do Nascimento et al., 2025): https://github.com/thiagovmdon/LSH-quality_geology
+- **Supporting Information** — regional geology for Moselle, calibration parameter CSVs (`results/groups/`), and all simulation outputs (`results/sim/`, `results/LSTM/`):
 
-Set the `path_estreams` and `path_data` variables in the Configurations cell of each notebook before running.
+> Medeiros do Nascimento, T. V. (2026). Data from "Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models" (0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18392387
 
-> **Note on `observations.npy`:** The observed streamflow arrays (`data/models/input/subset_*/observations.npy`) are excluded from this repository because of redistribution licenses issues. They were derived directly from EStreams. They are regenerated automatically when Part-2a is run from scratch with the raw data downloaded.
+Set the `path_estreams` and `path_data` variables in the Configurations cell of each notebook before running. For calibration parameters and simulation outputs, download from the SI Zenodo above and place them in the corresponding `results/` subdirectories — each has a `readme.md` with placement instructions.
 
-> **Note on calibration parameters and simulation outputs:** The best-parameter CSVs (`results/groups/`) and all model simulation NetCDFs (`results/sim/`, `results/LSTM/`) are not tracked in this repository due to their size. They are provided as Supporting Information via the Zenodo archive published alongside the paper (https://doi.org/10.5281/zenodo.18392387).
+> **Note on `observations.npy`:** The observed streamflow arrays (`data/models/input/subset_*/observations.npy`) are excluded from this repository due to redistribution licence restrictions. They are derived directly from EStreams and are regenerated automatically when Part-2a is run from scratch with the raw EStreams data downloaded.
 
-> do Nascimento, T. V. M.(2026). Data from "Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models" (0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18392387
+> **Tip — downloading raw streamflow time series:** If you want to use open-source Python APIs to download the original gauge discharge records directly, the **RivRetrieve** Python package provides a unified interface to download streamflow data from multiple national hydrological services, including the French and Belgium portals used in this study. See: https://github.com/kratzert/RivRetrieve-Python
 
 ---
 

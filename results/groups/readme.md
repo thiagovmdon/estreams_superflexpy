@@ -1,90 +1,54 @@
-# Group-Level Parameter Outputs
+# Group-Level Calibration Parameter Files
 
-This directory documents the **raw group-level parameter files** produced by the **process-based model experiments**.
-These files are **direct outputs from the computing cluster** and are not tracked in the GitHub repository.
+This directory contains the **best-performing parameter sets** from the SCE-UA calibration runs, one file per basin group and geology experiment. These are the direct outputs from the HPC cluster that feed into Part-3 (calibration simulations) and Part-4 (evaluation simulations).
 
-All files in this directory are provided as **Supporting Information via Zenodo**, together with the full set of **LSTM and process-based model runs** associated with the paper.
+**These files are not tracked in this GitHub repository.** Download them from the Supporting Information Zenodo archive:
 
----
+> Medeiros do Nascimento, T. V. (2026). Data from "Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models" (0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18392387
 
-## Purpose
-
-The files in this directory contain the **best-performing parameter sets** obtained for each:
-
-- catchment
-- experiment type
-- group definition
-
-They are conceptually analogous to the **raw NeuralHydrology LSTM run directories**, but for the **process-based (SuperflexPy) models**.
-
----
-
-## Directory structure
-
-results/groups/
-├── garonne_best_params_contcompt_Group_2.csv
-├── moselle_best_params_contcompt_Group_3_2.csv
-├── moselle_best_params_regicompt_Group_4_2.csv
-└── ...
-
+Place the downloaded CSV files directly in this directory (`results/groups/`) before running Part-3 or Part-4 notebooks.
 
 ---
 
 ## File naming convention
 
-Each file follows the pattern:
+```
+{basin}_best_params_{experiment}_Group_{id}[_{replicate}].csv
+```
 
-<catchment>best_params<experiment>Group<group_id>[ _<replicate> ].csv
+- `{basin}` — `garonne` or `moselle`
+- `{experiment}` — experiment label (see table below)
+- `Group_{id}` — calibration group index (1–7 for Moselle, 1–2 for Garonne)
+- `_{replicate}` — optional suffix marking the second calibration time window
 
-### Components
+### Experiment labels
 
-- `<catchment>`  
-  Catchment name (e.g. `garonne`, `moselle`)
+| Label | Description |
+|---|---|
+| `regicompt` | Regional-scale geology (BD LISA / high-resolution national maps) |
+| `globcompt` | Global-scale geology (GLiM) |
+| `contcompt` | Continental-scale geology (IHME-1500) |
+| `nogeot` | No geology — single general HRU, no permeability weighting (baseline) |
+| `randomcompt` | Random geology — Dirichlet-sampled permeability fractions |
 
-- `<experiment>`  
-  Experiment type (e.g. `contcompt`, `regicompt`)
+Additional variant experiments also present in the directory (used in sensitivity analyses):
 
-- `Group_<group_id>`  
-  Group identifier used in the experimental design
-
-- `_<replicate>` (optional)  
-  Replicate or secondary group split, when applicable
+| Label | Description |
+|---|---|
+| `regicomptWD` / `globcomptWD` | Regional/global geology with root depth as additional parameter |
+| `regicomptkge` / `globcomptkge` | Regional/global geology calibrated with KGE instead of modified NSE |
 
 ### Examples
 
-garonne_best_params_contcompt_Group_2.csv
-moselle_best_params_contcompt_Group_3_2.csv
-moselle_best_params_regicompt_Group_4_2.csv
-
+```
+moselle_best_params_regicompt_Group_3.csv
+moselle_best_params_regicompt_Group_3_2.csv
+garonne_best_params_contcompt_Group_1.csv
+garonne_best_params_contcompt_Group_1_2.csv
+```
 
 ---
 
 ## File contents
 
-Each CSV file contains:
-
-- basin identifiers
-- calibrated parameter values
-- associated metadata required to reproduce simulations
-
-These parameter sets are used as inputs for the simulation experiments stored under:
-
-results/sim/
-
----
-
-## Availability and reproducibility
-
-- These CSV files are **raw, unfiltered outputs** from cluster-based calibration runs.
-- They are excluded from GitHub to keep the repository lightweight.
-- The **complete set of raw parameter files**, together with:
-  - NeuralHydrology LSTM runs
-  - process-based model runs
-- is available in the **Zenodo Supporting Information** published alongside the paper.
-
----
-
-## Notes
-
-- Group definitions and experiment design are described in the Methods section of the paper.
-- File naming is consistent across catchments to enable automated post-processing.
+Each CSV contains calibrated parameter values for all basins in that group, plus basin identifiers and associated metadata needed to reproduce the simulations in `results/sim/`.
