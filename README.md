@@ -131,10 +131,13 @@ Key packages: `Python 3.9`, `pandas`, `numpy`, `xarray`, `geopandas`, `rasterio`
 
 If you use this code or data, please cite the accompaining paper:
 
+do Nascimento, T. V. M., Rudlang, J., Gnann, S., Seibert, J., Hrachowitz, M., & Fenicia,F.(2026).Assessing the impact of
+geological map detail on process‐based and data‐driven hydrological models. Water Resources Research, 62,e2025WR042375. https://doi.org/10.1029/2025WR042375
 
 ---
 
 ## Contact
+All code was written in Python by the author, and minor code improvements were assisted by AI tools during development.
 
 Thiago Nascimento — thiago.nascimento@eawag.ch  
 Eawag, Swiss Federal Institute of Aquatic Science and Technology
