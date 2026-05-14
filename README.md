@@ -51,7 +51,6 @@ The short answer: yes, better geological catchment attributes helps in both mode
 ```
 estreams_superflexpy/
 ├── code/                   ← all Jupyter notebooks
-│   └── 00_cluster/         ← Python scripts for HPC calibration (SuperflexPy + SPOTPY)
 ├── data/                   ← input CSV/xlsx files and model inputs (.npy)
 ├── results/                ← simulation outputs (.nc), figures, and tables
 └── environments/           ← environment.yml and requirements.txt
