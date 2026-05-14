@@ -8,9 +8,9 @@ by do Nascimento et al. (2026) — *Water Resources Research*
 
 How much does the resolution of a geological map actually matter for streamflow prediction in ungauged basins? That is the central question of this study. We test five levels of geological information — from no geology at all, through global and continental datasets, all the way up to high-resolution regional maps — inside two very different modelling frameworks: a process-based model (SuperflexPy) and a data-driven model (LSTM via NeuralHydrology).
 
-The study covers **130 catchments** across two French river systems: the **Moselle** (108 gauges, including Luxembourg and German tributaries) and the **Garonne** (22 gauges). Both basins have strong geological gradients, from crystalline basement in the Vosges and Massif Central to sedimentary plains (do Nascimento et al., 2025), making them good test cases for this kind of experiment.
+The study covers **130 catchments** across two river systems: the **Moselle** (108 gauges, including Luxembourg, French, Belgium and German tributaries) and the **Garonne** (22 French gauges). Both basins have strong geological gradients, from crystalline basement in the Vosges and Massif Central to sedimentary plains (do Nascimento et al., 2025), making them good test cases for this kind of experiment.
 
-The short answer: yes, better catchment attributes helps in both model types and particularly when predicting in ungauged basins.
+The short answer: yes, better geological catchment attributes helps in both model types and particularly when predicting in ungauged basins.
 
 > do Nascimento, T. V. M., Rudlang, J., Gnann, S., Seibert, J., Hrachowitz, M., and Fenicia, F.: How do geological map details influence the identification of geology-streamflow relationships in large-sample hydrology studies?, Hydrol. Earth Syst. Sci., 29, 7173–7200, https://doi.org/10.5194/hess-29-7173-2025, 2025.
 
@@ -41,6 +41,8 @@ The short answer: yes, better catchment attributes helps in both model types and
 **Performance metric:** modified NSE on square-root transformed flows (expo = 0.5), which gives more balanced weight to low and high flows compared to the standard NSE.
 
 **Precipitation correction (Garonne only):** EStreams precipitation is known to underestimate high-elevation rainfall in the Garonne. A catchment-specific correction factor `k_pre = exp(0.0107 + 2.46×10⁻⁴ × elevation_mean)` is derived from a regression against CAMELS-FR long-term mean precipitation and applied multiplicatively to all Garonne daily precipitation time series before model input. The corrected climatology is stored in `results/precipitation_correction/garonne_clim_with_kpre.csv` and used in both the process-based (Part-2a) and LSTM (Part-2b) input preparation steps.
+
+> Clerc‐Schwarzenbach, F., & do Nascimento, T. V. M. (2026). Evaluating E‐OBS forcing data for large‐sample hydrology using model performance diagnostics. HydrologyandEarthSystemSciences, 30(1), 119–140. https://doi.org/10.5194/hess‐30‐119‐2026
 
 ---
 
@@ -88,9 +90,7 @@ The notebooks are designed to be run in order. Each one picks up where the previ
 
 ### Step 5 — Figures and analysis
 - [Part-5 (Process-based)](./code/Part-5-figures-and-analysis-Bucket.ipynb) — all PB model figures, performance tables, Wilcoxon tests, SI tables
-- [Part-5 (extras)](./code/Part-5-figures-and-analysis-extras.ipynb) — additional PB figures and supplementary analysis
 - [Part-6 (LSTM)](./code/Part-6-figures-and-analysis-LSTM.ipynb) — all LSTM figures, performance tables, Wilcoxon tests, SI tables
-- [Part-6 (extras)](./code/Part-6-figures-and-analysis-LSTM-extras.ipynb) — additional LSTM figures and supplementary analysis
 
 ---
 
@@ -102,7 +102,7 @@ All input data needed to run the notebooks:
 - **Filtered catchment attributes** (do Nascimento et al., 2025): https://github.com/thiagovmdon/LSH-quality_geology
 - **Supporting Information** — regional geology for Moselle, calibration parameter CSVs (`results/groups/`), and all simulation outputs (`results/sim/`, `results/LSTM/`):
 
-> Medeiros do Nascimento, T. V. (2026). Data from "Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models" (0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18392387
+>do Nascimento, T. V. M. (2026). Data from "Assessing the Impact of Geological Map Detail on Process-Based and Data-Driven Hydrological Models" (0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.18392387
 
 Set the `path_estreams` and `path_data` variables in the Configurations cell of each notebook before running. For calibration parameters and simulation outputs, download from the SI Zenodo above and place them in the corresponding `results/` subdirectories — each has a `readme.md` with placement instructions.
 
@@ -131,13 +131,12 @@ Key packages: `Python 3.9`, `pandas`, `numpy`, `xarray`, `geopandas`, `rasterio`
 
 If you use this code or data, please cite the accompaining paper:
 
-do Nascimento, T. V. M., Rudlang, J., Gnann, S., Seibert, J., Hrachowitz, M., & Fenicia,F.(2026).Assessing the impact of
-geological map detail on process‐based and data‐driven hydrological models. Water Resources Research, 62,e2025WR042375. https://doi.org/10.1029/2025WR042375
-
+> do Nascimento, T. V. M., Rudlang, J., Gnann, S., Seibert, J., Hrachowitz, M., & Fenicia,F. (2026).Assessing the impact of geological map detail on process‐based and data‐driven hydrological models. Water Resources Research,  62, e2025WR042375. https://doi.org/10.1029/2025WR042375
+ 
 ---
 
 ## Contact
-All code was written in Python by the author, and minor code improvements were assisted by AI tools during development.
+All code was written in Python by the author, and code improvements were assisted by AI tools during development.
 
 Thiago Nascimento — thiago.nascimento@eawag.ch  
 Eawag, Swiss Federal Institute of Aquatic Science and Technology
